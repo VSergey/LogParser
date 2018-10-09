@@ -66,11 +66,9 @@ __published:	// IDE-managed Components
     TPanel *LinePanel;
     TMenuItem *TrCountLabel;
     TMenuItem *AppendMenuItem;
-    TPaintBox *PaintBox;
     void __fastcall OpenMenuItemClick(TObject *Sender);
     void __fastcall AppendMenuItemClick(TObject *Sender);
     void __fastcall ExitMenuItemClick(TObject *Sender);
-    void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall ShapeMouseDown (TObject *Sender, TMouseButton Button,
           TShiftState Shift, int X, int Y);
     void __fastcall Zoom1000ItemClick(TObject *Sender);
@@ -87,17 +85,13 @@ __published:	// IDE-managed Components
     void __fastcall Zoom5000ItemClick(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall PanelMouseMove(TObject *Sender, TShiftState Shift, int X, int Y);
-    void __fastcall PanelResize(TObject *Sender);
-    void __fastcall FormResize(TObject *Sender);
     void __fastcall TrCountLabelClick(TObject *Sender);
-  void __fastcall FormDeactivate(TObject *Sender);
 
 private:	// User declarations
     LogCollection records;
     int cRecords;
     int scale;
     int selectedInterval;
-    int oldX, oldY;
     UserNames users;
     UserIndexes userIndex;
     AnsiString currentFile;

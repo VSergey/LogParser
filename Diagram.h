@@ -19,13 +19,15 @@ __published:	// IDE-managed Components
   TStatusBar  *StatusBar;
   TScrollBox  *ScrollBox;
   TPanel      *Panel;
-  TToolBar    *ToolBar1;
+  TToolBar    *ToolBar;
   TButton     *Button1m;
   TButton     *Button30s;
-  TButton *Button10s;
-  TButton *ButtonMode1;
-  TButton *Button2;
-  TButton *Button3;
+  TButton     *Button10s;
+  TButton     *ButtonMode1;
+  TButton     *Button2;
+  TButton     *ButtonMode2;
+  TPopupMenu * PopupMenu;
+  TMenuItem   *CopyMenuItem;
   void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
   void __fastcall FormShow(TObject *Sender);
   void __fastcall ScrollBoxMouseWheel(TObject *Sender, TShiftState Shift,
@@ -36,7 +38,8 @@ __published:	// IDE-managed Components
   void __fastcall ShapeMouseDown(TObject *Sender, TMouseButton Button,
           TShiftState Shift, int X, int Y);
   void __fastcall ButtonMode1Click(TObject *Sender);
-  void __fastcall Button3Click(TObject *Sender);
+  void __fastcall ButtonMode2Click(TObject *Sender);
+  void __fastcall CopyMenuItemClick(TObject *Sender);
 private:	// User declarations
   DiagramCells cells;
   TShape* lastSelected;

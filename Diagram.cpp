@@ -1,5 +1,6 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
+#include <Clipbrd.hpp>
 #pragma hdrstop
 
 #include "Diagram.h"
@@ -211,11 +212,30 @@ void __fastcall TDiagramForm::ButtonMode1Click(TObject *Sender)
   }
 }
 //---------------------------------------------------------------------------
-void __fastcall TDiagramForm::Button3Click(TObject *Sender)
+void __fastcall TDiagramForm::ButtonMode2Click(TObject *Sender)
 {
   if(mode != 1) {
     mode = 1;
     BuildDiagram();
+  }
+}
+//---------------------------------------------------------------------------
+void __fastcall TDiagramForm::CopyMenuItemClick(TObject *Sender)
+{
+  Graphics::TBitmap *bm = new Graphics::TBitmap();
+  try {
+    bm->Width = ClientWidth;
+    bm->Height = ClientHeight;
+    //Panel->Invalidate();
+    //Panel->PaintTo(bm->Handle, 0, 0);
+    BitBlt(bm->Canvas->Handle, 0, 0, Panel->Width, Panel->Height-ToolBar->Height,
+           Canvas->Handle, Panel->Left, Panel->Top+ToolBar->Height, SRCCOPY);
+    Clipboard()->Assign(bm);
+  }
+  __finally
+  {
+    bm->FreeImage();
+    delete bm;
   }
 }
 //---------------------------------------------------------------------------

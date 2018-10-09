@@ -20,8 +20,6 @@ __fastcall TMain::TMain(TComponent* Owner)
 {
     scale = 1000;
     selectedInterval = -1;
-    oldX = -1;
-    oldY = -1;
 }
 //---------------------------------------------------------------------------
 void __fastcall TMain::OpenMenuItemClick(TObject *Sender)
@@ -102,11 +100,6 @@ void TMain::clearRecors()
     selectedInterval = -1;
 }
 //---------------------------------------------------------------------------
-void __fastcall TMain::FormClose(TObject *Sender, TCloseAction &Action)
-{
-    //clearRecors();
-}
-//---------------------------------------------------------------------------
 void __fastcall TMain::ShapeMouseDown(TObject *Sender, TMouseButton Button,
       TShiftState Shift, int X, int Y)
 {
@@ -185,14 +178,7 @@ void TMain::rescaleDiagram()
     Screen->Cursor = crHourGlass;
     try {
       Panel->Visible = false;
-      oldX = -1;
       Panel->DestroyComponents();
-      PaintBox = new TPaintBox(Panel);
-      PaintBox->Parent = Panel;
-      PaintBox->Align = alClient;
-      PaintBox->OnMouseMove = PanelMouseMove;
-      PaintBox->Canvas->Pen->Mode = pmXor;
-      PaintBox->Canvas->Pen->Color = clPurple;
       buildChart();
       if(DiagramForm->Visible) DiagramForm->BuildDiagram();
       Panel->Visible = true;
@@ -208,7 +194,6 @@ void __fastcall TMain::ScrollBoxMouseWheel(TObject *Sender,
 {
     ScrollBox->HorzScrollBar->Position += WheelDelta;
     Handled = true;
-    oldX = -1;
     Panel->Repaint();
 }
 //---------------------------------------------------------------------------
@@ -302,7 +287,6 @@ void TMain::buildChart()
         shape->Tag = i;
         shape->OnMouseDown = ShapeMouseDown;
     }
-    PaintBox->Width = lastX - skipX - start/scale;
     Panel->Width = lastX - skipX - start/scale;
 }
 //---------------------------------------------------------------------------
@@ -314,53 +298,17 @@ void __fastcall TMain::FormShow(TObject *Sender)
     }
     cmdLine = NULL;
   }
-  PaintBox->Canvas->Pen->Mode = pmXor;
-  PaintBox->Canvas->Pen->Color = clPurple;
 }
 //---------------------------------------------------------------------------
 void __fastcall TMain::PanelMouseMove(TObject *Sender, TShiftState Shift, int X, int Y)
 {
-  if(oldX >= 0) {
-    PaintBox->Canvas->MoveTo(oldX, 0);
-    PaintBox->Canvas->LineTo(oldX, PaintBox->Height);
-
-    PaintBox->Canvas->MoveTo(0, oldY);
-   PaintBox->Canvas->LineTo(PaintBox->Width, oldY);
-  }
-
-  PaintBox->Canvas->MoveTo(X, 0);
-  PaintBox->Canvas->LineTo(X, PaintBox->Height);
-
-  PaintBox->Canvas->MoveTo(0, Y);
-  PaintBox->Canvas->LineTo(PaintBox->Width, Y);
-
-  oldX = X;
-  oldY = Y;
   StatusBar->SimpleText = "X: "+IntToStr(X) + " Y: "+IntToStr(Y);
-}
-//---------------------------------------------------------------------------
-void __fastcall TMain::PanelResize(TObject *Sender)
-{
-  oldX = -1;
-  Panel->Repaint();
-}
-//---------------------------------------------------------------------------
-void __fastcall TMain::FormResize(TObject *Sender)
-{
-  oldX = -1;
-  Panel->Repaint();
 }
 //---------------------------------------------------------------------------
 void __fastcall TMain::TrCountLabelClick(TObject *Sender)
 {
   if(selectedInterval < 0) return;
   DiagramForm->Show();
-}
-//---------------------------------------------------------------------------
-void __fastcall TMain::FormDeactivate(TObject *Sender)
-{
-  oldX = -1;
-  Panel->Repaint();
 }
 //---------------------------------------------------------------------------
 

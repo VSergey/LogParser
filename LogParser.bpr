@@ -36,15 +36,15 @@ RELEASELIBPATH = $(BCB)\lib\release
 USERDEFINES =
 SYSDEFINES = NO_STRICT
 # ---------------------------------------------------------------------------
-CFLAG1 = -I..;LogParser;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\Include\OWLFiles\ClassLib -Od -Hc \
-  -H=$(BCB)\lib\vcl40.csm -w -Ve -r- -a8 -5 -k -y -v -vi- -c -b- -w-par -w-inl -Vx -tW -tWM \
+CFLAG1 = -I..;LogParser;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\Include\OWLFiles\ClassLib -O2 -Hc \
+  -H=$(BCB)\lib\vcl40.csm -w -Ve -a8 -5 -k- -vi -c -b- -w-par -w-inl -Vx -tW -tWM \
   -D$(SYSDEFINES);$(USERDEFINES)
 PFLAGS = -U..;LogParser;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib;$(RELEASELIBPATH) \
-  -I..;LogParser;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\Include\OWLFiles\ClassLib -$Y+ -$W -$O- -v \
+  -I..;LogParser;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\Include\OWLFiles\ClassLib -$Y- -$L- -$D- -v \
   -JPHNE -M
 RFLAGS = -i..;LogParser;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\Include\OWLFiles\ClassLib
-AFLAGS = /i.. /iLogParser /i$(BCB)\include /i$(BCB)\include\vcl /i$(BCB)\Include\OWLFiles\ClassLib /mx /w2 /zi
-LFLAGS = -L..;LogParser;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib;$(RELEASELIBPATH) -aa -Tpe -x -Gn -v
+AFLAGS = /i.. /iLogParser /i$(BCB)\include /i$(BCB)\include\vcl /i$(BCB)\Include\OWLFiles\ClassLib /mx /w2 /zn
+LFLAGS = -L..;LogParser;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib;$(RELEASELIBPATH) -aa -Tpe -x -Gn
 # ---------------------------------------------------------------------------
 ALLOBJ = c0w32.obj sysinit.obj $(OBJFILES)
 ALLRES = $(RESFILES)
