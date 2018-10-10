@@ -155,7 +155,8 @@ bool TDiagramForm::findRealUser(DiagramCell *rec)
 //---------------------------------------------------------------------------
 bool TDiagramForm::isRealUser(AnsiString &user)
 {
-  if(user == "system" || user == "-" || user == "ws1" || user == "year.end") return false;
+  if(user == "system" || user == "-" || user == "ws1" || user == "year.end" || user == "quant.reporting")
+    return false;
   int i = user.Pos(".ws");
   if(i != 0 && user.Length() > i+1) return false;
   return true;
