@@ -12,6 +12,7 @@
 #include <Dialogs.hpp>
 #include "DiagramCell.h"
 #include <ToolWin.hpp>
+#include <Buttons.hpp>
 //---------------------------------------------------------------------------
 class TDiagramForm : public TForm
 {
@@ -26,8 +27,10 @@ __published:	// IDE-managed Components
   TButton     *ButtonMode1;
   TButton     *Button2;
   TButton     *ButtonMode2;
-  TPopupMenu * PopupMenu;
+  TPopupMenu  *PopupMenu;
   TMenuItem   *CopyMenuItem;
+  TButton     *Button1;
+  TBitBtn     *InfoButton;
   void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
   void __fastcall FormShow(TObject *Sender);
   void __fastcall ScrollBoxMouseWheel(TObject *Sender, TShiftState Shift,
@@ -40,6 +43,7 @@ __published:	// IDE-managed Components
   void __fastcall ButtonMode1Click(TObject *Sender);
   void __fastcall ButtonMode2Click(TObject *Sender);
   void __fastcall CopyMenuItemClick(TObject *Sender);
+  void __fastcall InfoButtonClick(TObject *Sender);
 private:	// User declarations
   DiagramCells cells;
   TShape* lastSelected;
@@ -48,11 +52,12 @@ private:	// User declarations
   int intervalHour;
   int scale;
   int mode;
+  TColor lastSelectedColor;
 
-  void clearCells();
   bool rebuild(LogInterval *interval);
   void initCellsList(int size);
   void unselectButtons();
+  bool findRealUser(DiagramCell *rec);
 public:		// User declarations
   __fastcall TDiagramForm(TComponent* Owner);
   void BuildDiagram();

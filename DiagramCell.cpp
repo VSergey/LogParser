@@ -4,25 +4,23 @@
 
 #include "DiagramCell.h"
 //---------------------------------------------------------------------------
-DiagramCell::DiagramCell(int i, AnsiString tx, AnsiString user)
+DiagramCell::DiagramCell(int i)
 {
   idx = i;
-  txs.insert(tx);
-  users.insert(user);
 }
 //---------------------------------------------------------------------------
 DiagramCell::~DiagramCell()
 {
-  users.clear();
   txs.clear();
+  users.clear();
 }
 //---------------------------------------------------------------------------
-void DiagramCell::addUser(AnsiString userName)
+void DiagramCell::addUser(AnsiString& userName)
 {
   users.insert(userName);
 }
 //---------------------------------------------------------------------------
-void DiagramCell::addTx(AnsiString tx)
+void DiagramCell::addTx(AnsiString& tx)
 {
   txs.insert(tx);
 }
@@ -35,6 +33,26 @@ AnsiString DiagramCell::userNames()
     result += name + ", ";
   }
   return result;
+}
+//---------------------------------------------------------------------------
+UserNames::iterator DiagramCell::usersBegin()
+{
+  return users.begin();
+}
+//---------------------------------------------------------------------------
+UserNames::iterator DiagramCell::usersEnd()
+{
+  return users.end();
+}
+//---------------------------------------------------------------------------
+TxNames::iterator DiagramCell::txBegin()
+{
+  return txs.begin();
+}
+//---------------------------------------------------------------------------
+TxNames::iterator DiagramCell::txEnd()
+{
+  return txs.end();
 }
 //---------------------------------------------------------------------------
 #pragma package(smart_init)

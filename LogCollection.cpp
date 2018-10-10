@@ -70,9 +70,9 @@ LogInterval* LogCollection::ensureInterval(int day, int hour)
 }
 void LogCollection::add(const LogRecord *rec)
 {
-    int startHour = rec->getStartTime().hour();
+    int startHour = rec->getStartTime().hours();
     int startDay = rec->getStartTime().day();
-    int finishHour = rec->getFinishTime().hour();
+    int finishHour = rec->getFinishTime().hours();
     int finishDay = rec->getFinishTime().day();
     if(startDay==finishDay) {
         for(int i = startHour; i <= finishHour; i++) {

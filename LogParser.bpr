@@ -15,9 +15,9 @@ VERSION = BCB.04.04
 # ---------------------------------------------------------------------------
 PROJECT = LogParser.exe
 OBJFILES = LogParser.obj MainForm.obj LogRecord.obj ParseLogPanel.obj AboutPanel.obj LogCollection.obj \
-  IntervalPanel.obj Diagram.obj DiagramCell.obj
+  IntervalPanel.obj Diagram.obj DiagramCell.obj FormInfo.obj
 RESFILES = LogParser.res
-RESDEPEN = $(RESFILES) MainForm.dfm ParseLogPanel.dfm AboutPanel.dfm IntervalPanel.dfm Diagram.dfm
+RESDEPEN = $(RESFILES) MainForm.dfm ParseLogPanel.dfm AboutPanel.dfm IntervalPanel.dfm Diagram.dfm FormInfo.dfm
 LIBFILES =
 LIBRARIES = vcljpg40.lib Vcl40.lib
 SPARELIBS = Vcl40.lib vcljpg40.lib

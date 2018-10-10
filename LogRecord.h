@@ -19,7 +19,7 @@ public:
 
     long day() const { return o_days; }
     long milliseconds() const { return o_milliseconds; }
-    int hour() const;
+    int hours() const;
 
     bool operator ==(const DateTime& date) const;
     bool operator !=(const DateTime& date) const;

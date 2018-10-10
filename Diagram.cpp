@@ -5,12 +5,13 @@
 
 #include "Diagram.h"
 #include "MainForm.h"
+#include "FormInfo.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
 TDiagramForm *DiagramForm;
-long oneHhourMillis = 3600000;
+long oneHourMillis = 3600000;
 int width = 6;
 int y = 200;
 //---------------------------------------------------------------------------
@@ -38,42 +39,46 @@ void __fastcall TDiagramForm::FormShow(TObject *Sender)
 //---------------------------------------------------------------------------
 void TDiagramForm::initCellsList(int size)
 {
-  clearCells();
-  cells.resize(size);
+  for (DiagramCells::iterator it=cells.begin(); it != cells.end(); it++) {
+    DiagramCell *rec = *it;
+    if(rec) {
+      delete rec;
+      *it = NULL;
+    }
+  }
+  cells.clear();
   for(int i = 0; i<size; i++)
-    cells[i] = NULL;
+    cells.push_back(NULL);
 }
 //---------------------------------------------------------------------------
 bool TDiagramForm::rebuild(LogInterval *interval)
 {
   if(!interval) return false;
-  initCellsList(oneHhourMillis/scale+1); // by 10 sec in hour
+  initCellsList(oneHourMillis/scale); // by 10 sec in hour
   intervalDay = interval->day();
   intervalHour = interval->hour();
   const LogRecord* firstRecord = *interval->begin();
   long start = 0;
   if(firstRecord) {
     DateTime firstTime = firstRecord->getStartTime();
-    start = firstTime.milliseconds()/oneHhourMillis*oneHhourMillis; // start of hour
+    start = firstTime.milliseconds(); // start of hour
   }
   for (RecordsArray::iterator it=interval->begin(); it != interval->end(); it++) {
     const LogRecord *rec= *it;
 
-    AnsiString userName = rec->getUser();
-    AnsiString tx = rec->getTxNumber();
     long startTime = rec->getStartTime().milliseconds() - start;
     long endTime = rec->getFinishTime().milliseconds() - start;
     int startIndex = startTime / scale;
     int endIndex = endTime / scale;
     if(endTime % scale > 0) endIndex++;
     for(int i = startIndex; i <= endIndex; i++) {
-      DiagramCell* cell = cells[i];
+      DiagramCell* cell = (cells.size()-i>0)? cells[i]: NULL;
       if(cell == NULL) {
-        cells[i] = new DiagramCell(i, tx, userName);
-      } else {
-        cell->addUser(userName);
-        cell->addTx(tx);
+        cell = new DiagramCell(i);
+        cells[i] = cell;
       }
+      cell->addUser(rec->getUser());
+      cell->addTx(rec->getTxNumber());
     }
   }
   return true;
@@ -93,11 +98,12 @@ void TDiagramForm::BuildDiagram()
     StatusBar->SimpleText = "";
     Panel->DestroyComponents();
     for (DiagramCells::iterator it=cells.begin(); it != cells.end(); it++) {
-      const DiagramCell *rec= *it;
+      DiagramCell *rec= *it;
       if(rec) {
         TShape *shape = new TShape(Panel);
         shape->Parent = Panel;
-        shape->Brush->Color = clLime;
+        bool hasRealUsers = findRealUser(rec);
+        shape->Brush->Color = hasRealUsers? clLime : clWhite;
         int height = (mode == 0)? rec->usersCount() : rec->txCount();
         if(max < height) max = height;
         height *= shapeHeight;
@@ -130,13 +136,19 @@ void TDiagramForm::BuildDiagram()
   }
 }
 //---------------------------------------------------------------------------
-void TDiagramForm::clearCells()
+bool TDiagramForm::findRealUser(DiagramCell *rec)
 {
-  for (DiagramCells::iterator it=cells.begin(); it != cells.end(); it++) {
-    DiagramCell *rec= *it;
-    if(rec) delete rec;
+  for (UserNames::iterator it=rec->usersBegin(); it != rec->usersEnd(); it++) {
+      AnsiString user = *it;
+      if(user == "system") continue;
+      if(user == "-") continue;
+      if(user == "ws1") continue;
+      if(user == "year.end") continue;
+      int i = user.Pos(".ws");
+      if(i != 0 && user.Length() > i+1) continue;
+      return true;
   }
-  cells.clear();
+  return false;
 }
 //---------------------------------------------------------------------------
 void __fastcall TDiagramForm::ScrollBoxMouseWheel(TObject *Sender,
@@ -184,14 +196,15 @@ void __fastcall TDiagramForm::ShapeMouseDown(TObject *Sender,
   TShape *shape = (TShape *)Sender;
   int index = shape->Tag;
   if(index < 0) return;
-  if(lastSelected)  lastSelected->Brush->Color = clLime;
+  if(lastSelected)  lastSelected->Brush->Color = lastSelectedColor;
   lastSelected = shape;
+  lastSelectedColor = shape->Brush->Color;
   shape->Brush->Color = clBlue;
   DiagramCell *rec = cells[index];
   int sc = scale / 1000;
   int min = index * sc / 60;
   int sec = index * sc % 60;
-  AnsiString label = AnsiString(min)+" min, "+AnsiString(sec)+" sec,  ";
+  AnsiString label = "+ "+AnsiString(min)+" min, "+AnsiString(sec)+" sec,  ";
   if(timeLabel == NULL) {
     timeLabel = new TLabel(Panel);
     timeLabel->Parent = Panel;
@@ -226,8 +239,6 @@ void __fastcall TDiagramForm::CopyMenuItemClick(TObject *Sender)
   try {
     bm->Width = ClientWidth;
     bm->Height = ClientHeight;
-    //Panel->Invalidate();
-    //Panel->PaintTo(bm->Handle, 0, 0);
     BitBlt(bm->Canvas->Handle, 0, 0, Panel->Width, Panel->Height-ToolBar->Height,
            Canvas->Handle, Panel->Left, Panel->Top+ToolBar->Height, SRCCOPY);
     Clipboard()->Assign(bm);
@@ -236,6 +247,33 @@ void __fastcall TDiagramForm::CopyMenuItemClick(TObject *Sender)
   {
     bm->FreeImage();
     delete bm;
+  }
+}
+//---------------------------------------------------------------------------
+void __fastcall TDiagramForm::InfoButtonClick(TObject *Sender)
+{
+  if(lastSelected) {
+    int index = lastSelected->Tag;
+    if(index < 0) return;
+    DiagramCell *rec = cells[index];
+    InfoForm->UsersList->Clear();
+    for (UserNames::iterator it=rec->usersBegin(); it != rec->usersEnd(); it++) {
+      AnsiString user = *it;
+      InfoForm->UsersList->Items->Add(user);
+    }
+    InfoForm->TxList->Clear();
+    LogInterval *interval = Main->getSelectedInterval();
+    for (TxNames::iterator it=rec->txBegin(); it != rec->txEnd(); it++) {
+      AnsiString txId= *it;
+      for (RecordsArray::iterator it=interval->begin(); it != interval->end(); it++) {
+        const LogRecord *rec= *it;
+        if(txId == rec->getTxNumber()) {
+          InfoForm->TxList->Items->Add(txId + " - " + rec->getUser() + " -> " + rec->getAction());
+          break;
+        }
+      }
+    }
+    InfoForm->Show();
   }
 }
 //---------------------------------------------------------------------------

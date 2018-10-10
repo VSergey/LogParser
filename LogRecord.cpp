@@ -32,18 +32,18 @@ DateTime::DateTime(char *str)
     timeBuffer[0] = str[11]; // 0
     timeBuffer[1] = str[12]; // 5
     timeBuffer[2] = 0x0;
-    int hour = atoi(timeBuffer);
+    int hours = atoi(timeBuffer);
     timeBuffer[0] = str[14]; // 1
     timeBuffer[1] = str[15]; // 0
-    int minute = atoi(timeBuffer) + hour*60;
+    int minutes = atoi(timeBuffer) + hours*60;
     timeBuffer[0] = str[17]; // 4
     timeBuffer[1] = str[18]; // 7
-    int second = atoi(timeBuffer) + minute*60;
+    int seconds = atoi(timeBuffer) + minutes*60;
     timeBuffer[0] = str[20]; // 2
     timeBuffer[1] = str[21]; // 5
     timeBuffer[2] = str[22]; // 5
     timeBuffer[3] = 0x0;
-    o_milliseconds = atoi(timeBuffer) + second *1000;
+    o_milliseconds = atoi(timeBuffer) + seconds *1000;
 }
 DateTime::DateTime(long d, long ms)
 {
@@ -55,7 +55,7 @@ DateTime::DateTime(const DateTime& date)
     o_days = date.o_days;
     o_milliseconds = date.o_milliseconds;
 }
-int DateTime::hour() const
+int DateTime::hours() const
 {
     return o_milliseconds/s_hour;
 }
@@ -130,7 +130,7 @@ char * LogRecord::readTxNumber(char *s, char *buffer)
         buffer[i++] = *s;
       }
       if(*s == ':')  {
-        buffer[i++] = *s;
+        buffer[i++] = *(s++);
         for(; isdigit(*s); s++) {
           buffer[i++] = *s;
         }

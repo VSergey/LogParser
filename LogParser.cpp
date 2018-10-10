@@ -10,6 +10,7 @@ USEUNIT("LogCollection.cpp");
 USEFORM("IntervalPanel.cpp", IntervalForm);
 USEFORM("Diagram.cpp", DiagramForm);
 USEUNIT("DiagramCell.cpp");
+USEFORM("FormInfo.cpp", InfoForm);
 //---------------------------------------------------------------------------
 extern LPSTR cmdLine;
 //---------------------------------------------------------------------------
@@ -24,6 +25,7 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR line, int)
      Application->CreateForm(__classid(TAboutForm), &AboutForm);
      Application->CreateForm(__classid(TIntervalForm), &IntervalForm);
      Application->CreateForm(__classid(TDiagramForm), &DiagramForm);
+     Application->CreateForm(__classid(TInfoForm), &InfoForm);
      Application->Run();
     }
     catch (Exception &exception)
