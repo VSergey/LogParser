@@ -2,14 +2,20 @@
 #ifndef DiagramCellH
 #define DiagramCellH
 
-#include "LogCollection.h"
+#include <string>
+#include <set>
+#include <vector>
+#include <sysdefs.h>
+
 //---------------------------------------------------------------------------
 typedef std::set<AnsiString> TxNames;
+typedef std::set<AnsiString> Users;
+//typedef std::set<std::string> Users;
 //---------------------------------------------------------------------------
 class DiagramCell
 {
 private:
-  UserNames users;
+  Users users;
   TxNames txs;
   int idx;
 
@@ -22,10 +28,10 @@ public:
   int txCount() const { return txs.size(); }
   AnsiString userNames();
 
-  void addUser(AnsiString& userName);
-  void addTx(AnsiString& tx);
-  UserNames::iterator usersBegin();
-  UserNames::iterator usersEnd();
+  void addUser(AnsiString userName);
+  void addTx(AnsiString tx);
+  Users::iterator usersBegin();
+  Users::iterator usersEnd();
   TxNames::iterator txBegin();
   TxNames::iterator txEnd();
 };

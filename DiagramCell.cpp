@@ -15,12 +15,13 @@ DiagramCell::~DiagramCell()
   users.clear();
 }
 //---------------------------------------------------------------------------
-void DiagramCell::addUser(AnsiString& userName)
+void DiagramCell::addUser(AnsiString userName)
 {
-  users.insert(userName);
+  if(users.find(userName) == users.end())
+    users.insert(userName);
 }
 //---------------------------------------------------------------------------
-void DiagramCell::addTx(AnsiString& tx)
+void DiagramCell::addTx(AnsiString tx)
 {
   txs.insert(tx);
 }
@@ -28,19 +29,19 @@ void DiagramCell::addTx(AnsiString& tx)
 AnsiString DiagramCell::userNames()
 {
   AnsiString result = "";
-  for (UserNames::iterator it=users.begin(); it != users.end(); it++) {
+  for (Users::iterator it=users.begin(); it != users.end(); it++) {
     AnsiString name = *it;
     result += name + ", ";
   }
   return result;
 }
 //---------------------------------------------------------------------------
-UserNames::iterator DiagramCell::usersBegin()
+Users::iterator DiagramCell::usersBegin()
 {
   return users.begin();
 }
 //---------------------------------------------------------------------------
-UserNames::iterator DiagramCell::usersEnd()
+Users::iterator DiagramCell::usersEnd()
 {
   return users.end();
 }

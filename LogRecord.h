@@ -37,12 +37,12 @@ class LogRecord
 {
 private:
     AnsiString txNumber;
-    long wait, exec;
-    long gets, puts;
     AnsiString user;
     AnsiString action;
     DateTime startTime;
     DateTime finishTime;
+    long wait, exec;
+    long gets, puts;
     bool readAction;
 
     AnsiString timeString(long time) const;

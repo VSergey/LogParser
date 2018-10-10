@@ -54,7 +54,8 @@ void TDiagramForm::initCellsList(int size)
 bool TDiagramForm::rebuild(LogInterval *interval)
 {
   if(!interval) return false;
-  initCellsList(oneHourMillis/scale); // by 10 sec in hour
+  int maxIndex = oneHourMillis/scale;
+  initCellsList(maxIndex); // by 10 sec in hour
   intervalDay = interval->day();
   intervalHour = interval->hour();
   const LogRecord* firstRecord = *interval->begin();
@@ -63,22 +64,29 @@ bool TDiagramForm::rebuild(LogInterval *interval)
     DateTime firstTime = firstRecord->getStartTime();
     start = firstTime.milliseconds(); // start of hour
   }
+  bool isReadOnly = ReadOnlyCheckBox->Checked;
+  bool hideWS = WsTxCheckBox->Checked;
   for (RecordsArray::iterator it=interval->begin(); it != interval->end(); it++) {
     const LogRecord *rec= *it;
 
+    if(isReadOnly && !rec->isRead()) continue;
+    AnsiString user = rec->getUser();
+    if(hideWS && !isRealUser(user)) continue;
     long startTime = rec->getStartTime().milliseconds() - start;
     long endTime = rec->getFinishTime().milliseconds() - start;
     int startIndex = startTime / scale;
     int endIndex = endTime / scale;
     if(endTime % scale > 0) endIndex++;
     for(int i = startIndex; i <= endIndex; i++) {
-      DiagramCell* cell = (cells.size()-i>0)? cells[i]: NULL;
-      if(cell == NULL) {
-        cell = new DiagramCell(i);
-        cells[i] = cell;
+      if(i < cells.size()) {
+        DiagramCell* cell = cells[i];
+        if(cell == NULL) {
+          cell = new DiagramCell(i);
+          cells[i] = cell;
+        }
+        cell->addUser(user);
+        cell->addTx(rec->getTxNumber());
       }
-      cell->addUser(rec->getUser());
-      cell->addTx(rec->getTxNumber());
     }
   }
   return true;
@@ -138,17 +146,19 @@ void TDiagramForm::BuildDiagram()
 //---------------------------------------------------------------------------
 bool TDiagramForm::findRealUser(DiagramCell *rec)
 {
-  for (UserNames::iterator it=rec->usersBegin(); it != rec->usersEnd(); it++) {
+  for (Users::iterator it=rec->usersBegin(); it != rec->usersEnd(); it++) {
       AnsiString user = *it;
-      if(user == "system") continue;
-      if(user == "-") continue;
-      if(user == "ws1") continue;
-      if(user == "year.end") continue;
-      int i = user.Pos(".ws");
-      if(i != 0 && user.Length() > i+1) continue;
-      return true;
+      if(isRealUser(user)) return true;
   }
   return false;
+}
+//---------------------------------------------------------------------------
+bool TDiagramForm::isRealUser(AnsiString &user)
+{
+  if(user == "system" || user == "-" || user == "ws1" || user == "year.end") return false;
+  int i = user.Pos(".ws");
+  if(i != 0 && user.Length() > i+1) return false;
+  return true;
 }
 //---------------------------------------------------------------------------
 void __fastcall TDiagramForm::ScrollBoxMouseWheel(TObject *Sender,
@@ -162,32 +172,19 @@ void __fastcall TDiagramForm::ScrollBoxMouseWheel(TObject *Sender,
 void __fastcall TDiagramForm::Button10sClick(TObject *Sender)
 {
   scale = 10000; // 10 sec
-  unselectButtons();
-  Button10s->Default = true;
   BuildDiagram();
 }
 //---------------------------------------------------------------------------
 void __fastcall TDiagramForm::Button30sClick(TObject *Sender)
 {
   scale = 30000; // 30 sec
-  unselectButtons();
-  Button30s->Default = true;
   BuildDiagram();
 }
 //---------------------------------------------------------------------------
 void __fastcall TDiagramForm::Button1mClick(TObject *Sender)
 {
   scale = 60000; // 1 min
-  unselectButtons();
-  Button1m->Default = true;
   BuildDiagram();
-}
-//---------------------------------------------------------------------------
-void TDiagramForm::unselectButtons()
-{
-  Button10s->Default = false;
-  Button30s->Default = false;
-  Button1m->Default = false;
 }
 //---------------------------------------------------------------------------
 void __fastcall TDiagramForm::ShapeMouseDown(TObject *Sender,
@@ -256,25 +253,20 @@ void __fastcall TDiagramForm::InfoButtonClick(TObject *Sender)
     int index = lastSelected->Tag;
     if(index < 0) return;
     DiagramCell *rec = cells[index];
-    InfoForm->UsersList->Clear();
-    for (UserNames::iterator it=rec->usersBegin(); it != rec->usersEnd(); it++) {
-      AnsiString user = *it;
-      InfoForm->UsersList->Items->Add(user);
-    }
-    InfoForm->TxList->Clear();
-    LogInterval *interval = Main->getSelectedInterval();
-    for (TxNames::iterator it=rec->txBegin(); it != rec->txEnd(); it++) {
-      AnsiString txId= *it;
-      for (RecordsArray::iterator it=interval->begin(); it != interval->end(); it++) {
-        const LogRecord *rec= *it;
-        if(txId == rec->getTxNumber()) {
-          InfoForm->TxList->Items->Add(txId + " - " + rec->getUser() + " -> " + rec->getAction());
-          break;
-        }
-      }
-    }
-    InfoForm->Show();
+    InfoForm->update(rec, Main->getSelectedInterval(),
+      ReadOnlyCheckBox->Checked, WsTxCheckBox->Checked);
   }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TDiagramForm::ReadOnlyCheckBoxClick(TObject *Sender)
+{
+  BuildDiagram();
+}
+//---------------------------------------------------------------------------
+void __fastcall TDiagramForm::WsTxCheckBoxClick(TObject *Sender)
+{
+  BuildDiagram();
 }
 //---------------------------------------------------------------------------
 

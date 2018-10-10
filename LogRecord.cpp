@@ -208,7 +208,8 @@ LogRecord * LogRecord::parse(char *str)
         puts = atol(buffer);
         paction = pputs;
       }
-
+      int l = strlen(paction);
+      if(l > 0 && paction[l-1]=='\n') paction[l-1] = 0x0;
       AnsiString action = AnsiString(paction);
       DateTime startTime = finishTime-exec;
 
